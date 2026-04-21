@@ -1,61 +1,72 @@
-//
-//  ContentView.swift
-//  Pokemon App
-//
-//  Created by Gabby A on 4/13/26.
-//
-
 import SwiftUI
-import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Pokedex")
+                    .font(.largeTitle.bold())
+
+                Text("Very basic app outline")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                OutlineSection(
+                    title: "Search Area",
+                    lines: [
+                        "User types a Pokemon name here",
+                        "App filters the Pokemon list"
+                    ]
+                )
+
+                OutlineSection(
+                    title: "Pokemon List",
+                    lines: [
+                        "Show Pokemon names",
+                        "Tap one Pokemon to view details"
+                    ]
+                )
+
+                OutlineSection(
+                    title: "Pokemon Details",
+                    lines: [
+                        "Show selected Pokemon name",
+                        "Show type",
+                        "Show short description or image"
+                    ]
+                )
+
+                Spacer()
+            }
+            .padding()
+            .navigationTitle("Pokemon App")
+        }
+    }
+}
+
+private struct OutlineSection: View {
+    let title: String
+    let lines: [String]
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.headline)
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            ForEach(lines, id: \.self) { line in
+                Text("• \(line)")
+                    .foregroundStyle(.secondary)
             }
         }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.gray.opacity(0.35), lineWidth: 1)
+        )
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
